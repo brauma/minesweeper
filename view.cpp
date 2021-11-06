@@ -58,11 +58,26 @@ void View::clearScreen()
     SDL_RenderClear(renderer);
 } 
 
+void View::drawUI()
+{
+
+}
+
+void View::drawTile() 
+{
+    SDL_Rect rect = {(int) 15, (int) 15, 10, 10};
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    SDL_RenderFillRect(renderer, &rect);
+
+    SDL_RenderPresent(renderer);
+    SDL_Delay(1000/FPS);
+}
+
 void View::destroy()
 {
     /** Release resources */
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
-    delete instance;
     SDL_Quit();
+    delete instance;
 }

@@ -3,6 +3,7 @@
 
 #define WIDTH 640
 #define HEIGHT 480
+#define FPS 30
 
 class View
 {
@@ -15,6 +16,9 @@ public:
 
     void destroy();
     void clearScreen();
+
+    void drawUI();
+    void drawTile();
 
     static View* GetInstance();
 };
