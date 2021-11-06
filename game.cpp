@@ -51,7 +51,7 @@ void Game::run()
                     running = false;
                     break;
                 case SDL_MOUSEBUTTONDOWN:
-                    handleMouseEvenet(event.button.button);
+                    handleMouseInput(event.button);
                     break;
                 default:
                     break;
@@ -100,37 +100,102 @@ void Game::addNumbers()
     {
         for (int j = 0; j < state->columns; j++)
         {
-            adjacentBombs = 0;
-            if (tiles[i][j] == 9)
+            if (tiles[i][j] == TileType::Bomb_Tile)
                 continue;
-            if (i-1 >= 0 && tiles[i-1][j] == 9)
-                adjacentBombs++;
-            if (i+1 < state->rows && tiles[i+1][j] == 9)
-                adjacentBombs++;
-            if (j-1 >= 0 && tiles[i][j-1] == 9)
-                adjacentBombs++;            
-            if (j+1 < state->columns && tiles[i][j+1] == 9)
-                adjacentBombs++;            
-            if (i-1 >= 0 && j-1 >= 0 && tiles[i-1][j-1] == 9)
-                adjacentBombs++;            
-            if (i-1 >= 0 && j+1 < state->columns && tiles[i-1][j+1] == 9)
-                adjacentBombs++;
-            if (i+1 < state->rows && j-1 >= 0 && tiles[i+1][j-1] == 9)
-                adjacentBombs++;
-            if (i+1 < state->rows && j+1 < state->columns && tiles[i+1][j+1] == 9)
-                adjacentBombs++;
+
+            adjacentBombs = 0;
+            for (auto adjacent : getAdjacentTiles(i, j))
+            {
+                if (tiles[std::get<0>(adjacent)][std::get<1>(adjacent)] == TileType::Bomb_Tile)
+                    adjacentBombs++;
+            }
             tiles[i][j] = adjacentBombs;
         }
     }
     state->setTiles(tiles);
 }
 
-void handleMouseEvenet(Uint8 mouseButtonEvent)
+std::vector<std::tuple<int, int>> Game::getAdjacentTiles(int i, int j)
 {
-    switch (mouseButtonEvent)
+    std::vector<std::tuple<int, int>> adjacentTiles;
+
+    if (i-1 >= 0)
+        adjacentTiles.push_back(std::tuple<int, int>(i-1, j));
+    if (i+1 < state->rows)
+        adjacentTiles.push_back(std::tuple<int, int>(i+1, j));
+    if (j-1 >= 0)
+        adjacentTiles.push_back(std::tuple<int, int>(i, j-1));
+    if (j+1 < state->columns)
+        adjacentTiles.push_back(std::tuple<int, int>(i, j+1));
+    if (i-1 >= 0 && j-1 >= 0)
+        adjacentTiles.push_back(std::tuple<int, int>(i-1, j-1));
+    if (i-1 >= 0 && j+1 < state->columns)
+        adjacentTiles.push_back(std::tuple<int, int>(i-1, j+1));
+    if (i+1 < state->rows && j-1 >= 0)
+        adjacentTiles.push_back(std::tuple<int, int>(i+1, j-1));
+    if (i+1 < state->rows && j+1 < state->columns)
+        adjacentTiles.push_back(std::tuple<int, int>(i+1, j+1));
+    
+    return adjacentTiles;
+}
+
+void Game::clickEmptyTiles(int i, int j)
+{
+    std::vector<std::vector<int>> tiles = state->getTiles();
+
+    state->getTileStates()[i][j] = true;
+    auto adjacentTiles = getAdjacentTiles(i, j);
+    int current_i, current_j;
+
+    for (auto adjacent : adjacentTiles)
+    {
+        current_i = std::get<0>(adjacent);
+        current_j = std::get<1>(adjacent);
+
+        if (state->getTileStates()[current_i][current_j])
+            continue;
+
+        if (tiles[current_i][current_j] > TileType::Empty_Tile &&
+            tiles[current_i][current_j] < TileType::Bomb_Tile) 
+        {
+            state->getTileStates()[current_i][current_j] = true;
+        }
+
+        if (tiles[current_i][current_j] == TileType::Empty_Tile)
+        {
+            clickEmptyTiles(current_i, current_j);
+        }
+    }
+}
+
+void Game::handleMouseInput(SDL_MouseButtonEvent mouseButtonEvent)
+{
+    std::tuple<int, int> clickedTile = View::GetInstance()->getClickedTile(mouseButtonEvent.x, mouseButtonEvent.y);
+    int i = std::get<0>(clickedTile);
+    int j = std::get<1>(clickedTile);
+
+    if (i == -1)
+        return;
+
+    switch (mouseButtonEvent.button)
     {
         case SDL_BUTTON_LEFT:
-            std::cerr << "Left mouse button!" << std::endl;
+            if (!state->getTileStates()[i][j]){
+                state->getTileStates()[i][j] = true;
+                switch(state->getTiles()[i][j])
+                {
+                    case TileType::Bomb_Tile:
+                        // temporary
+                        // View::GetInstance()->gameOverScreen();
+                        //restart();
+                        break;
+                    case TileType::Empty_Tile:
+                        clickEmptyTiles(i, j);
+                        break;
+                    default:
+                        break;
+                }
+            }
             break;
         case SDL_BUTTON_RIGHT:
             std::cerr << "Right mouse button!" << std::endl;

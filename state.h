@@ -17,6 +17,12 @@ enum TileType {
     Unclicked_Tile
 };
 
+enum TileStates {
+    Unclicked,
+    Clicked,
+    Flagged
+};
+
 class State
 {
 private:

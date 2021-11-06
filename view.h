@@ -1,5 +1,7 @@
 #include <iostream>
 #include <SDL2/SDL.h>
+#include <vector>
+#include <tuple>
 #include "state.h"
 
 #define WIDTH 625
@@ -19,7 +21,8 @@ private:
     SDL_Texture* buttonAtlas;
     SDL_Texture* boardTexture;
 
-    SDL_Rect textures[10];
+    SDL_Rect textures[11];
+    std::vector<std::vector<SDL_Rect>> positions;
 
     int init();
 public:
@@ -36,5 +39,11 @@ public:
     void drawUI();
     void drawTile(SDL_Rect clip, SDL_Rect pos);
 
+    void getTexturePositions();
+    void getDrawPositions();
+
+    std::tuple<int, int> getClickedTile(int x, int y);
+
+    void gameOverScreen();
     void destroy();
 };

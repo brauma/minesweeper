@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <vector>
 #include <cmath>
+#include <tuple>
 #include "view.h"
 #include "state.h"
 #include "time.h"
@@ -26,5 +27,9 @@ public:
     void placeBombs();
     void addNumbers();
 
-    void handleMouseInput(Uint8 mouseButtonEvent);
+    std::vector<std::tuple<int, int>> getAdjacentTiles(int i, int j);
+
+    void clickEmptyTiles(int i, int j);
+
+    void handleMouseInput(SDL_MouseButtonEvent mouseButtonEvent);
 };
