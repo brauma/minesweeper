@@ -3,7 +3,70 @@
 
 Game::Game()
 {
-    
+    init();
+}
+
+void Game::init() 
+{
+    state = State::getInstance();
+
+    buildBoard();
+
+    std::cout << "Bombs placed" << std::endl;
+
+    /* for (int i = 0; i < GRID_HEIGHT; i++)
+    {
+        for (int j = 0; j < GRID_WIDTH; j++)
+        {
+            std::cout << state->getTiles()[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }  */
+
+    running = true;
+}
+
+void Game::restart()
+{
+    state->resetState();
+    buildBoard();
+}
+
+void Game::run()
+{
+    View* view = View::GetInstance();
+
+    SDL_Event event;
+    while (running)
+    {
+        /** Process events */
+        while (SDL_PollEvent(&event))
+        {
+            switch(event.type)
+            {
+                case SDL_QUIT:
+                    view->destroy();
+                    state->destroy();
+
+                    running = false;
+                    break;
+                case SDL_MOUSEBUTTONDOWN:
+                    handleMouseEvenet(event.button.button);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        view->clearScreen();
+        view->drawScreen();
+    }
+}
+
+void Game::buildBoard()
+{
+   placeBombs();
+   addNumbers();
 }
 
 void Game::placeBombs()
@@ -62,61 +125,18 @@ void Game::addNumbers()
     state->setTiles(tiles);
 }
 
-void Game::buildBoard()
+void handleMouseEvenet(Uint8 mouseButtonEvent)
 {
-   placeBombs();
-   addNumbers();
-}
-
-
-void Game::init() 
-{
-    state = State::getInstance();
-
-    buildBoard();
-
-    std::cout << "Bombs placed" << std::endl;
-
-    for (int i = 0; i < GRID_HEIGHT; i++)
+    switch (mouseButtonEvent)
     {
-        for (int j = 0; j < GRID_WIDTH; j++)
-        {
-            std::cout << state->getTiles()[i][j] << " ";
-        }
-        std::cout << std::endl;
-    } 
-
-    running = true;
-}
-
-void Game::restart()
-{
-    state->resetState();
-    buildBoard();
-}
-
-void Game::run()
-{
-    View* view = View::GetInstance();
-
-    SDL_Event event;
-    while (running)
-    {
-        /** Process events */
-        while (SDL_PollEvent(&event))
-        {
-            switch(event.type)
-            {
-                case SDL_QUIT:
-                    view->destroy();
-                    running = false;
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        view->clearScreen();
-        view->drawTile();
+        case SDL_BUTTON_LEFT:
+            std::cerr << "Left mouse button!" << std::endl;
+            break;
+        case SDL_BUTTON_RIGHT:
+            std::cerr << "Right mouse button!" << std::endl;
+            break;
+        default:
+            std::cerr << "Some mouse button!" << std::endl;
+            break;
     }
 }
