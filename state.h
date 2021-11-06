@@ -3,6 +3,20 @@
 
 #include <vector>
 
+enum TileType {
+    Empty_Tile,
+    One_Tile,
+    Two_Tile,
+    Three_Tile,
+    Four_Tile,
+    Five_Tile,
+    Six_Tile,
+    Seven_Tile,
+    Eight_Tile,
+    Bomb_Tile,
+    Unclicked_Tile
+};
+
 class State
 {
 private:
