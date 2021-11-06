@@ -27,9 +27,10 @@ public:
     static State* getInstance();
     
     std::vector<std::vector<int>>& getTiles();
+    std::vector<std::vector<bool>>& getTileStates();
     void setTiles(std::vector<std::vector<int>>& newTiles);
     void resetState();
-    
+    void destroy();
 };
 
 #endif

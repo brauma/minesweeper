@@ -6,8 +6,7 @@
 int main()
 {
     Game* game = new Game();
-    game->init();
-    //game->run();
+    game->run();
 
     return 0;
 }

@@ -16,6 +16,11 @@ std::vector<std::vector<int>>& State::getTiles()
     return tiles;
 }
 
+std::vector<std::vector<bool>>& State::getTileStates()
+{
+    return tileStates;
+}
+
 // This may be unnecessary 
 void State::setTiles(std::vector<std::vector<int>>& newTiles)
 {
@@ -34,4 +39,9 @@ State* State::getInstance(){
         instance = new State();
     } 
     return instance;
+}
+
+void State::destroy()
+{
+    delete instance;
 }

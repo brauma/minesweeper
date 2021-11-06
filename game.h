@@ -21,7 +21,10 @@ public:
     void init();
     void run();
     void restart();
+
     void buildBoard();
     void placeBombs();
     void addNumbers();
+
+    void handleMouseInput(Uint8 mouseButtonEvent);
 };
