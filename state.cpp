@@ -4,26 +4,42 @@ State* State::instance = nullptr;
 
 State::State()
 {
-    // this needs fixing
-    defaultTiles = std::vector<std::vector<int>> (rows, std::vector<int>(columns, TileType::Empty_Tile));
-    defaultTileStates = std::vector<std::vector<int>> (rows, std::vector<int>(columns, TileState::Unclicked));
+    defaultTiles = std::vector<std::vector<Tile::Type>> (rows, std::vector<Tile::Type>(columns, Tile::Type::Empty_Tile));
+    defaultTileStates = std::vector<std::vector<Tile::State>> (rows, std::vector<Tile::State>(columns, Tile::State::Unclicked));
     tiles = defaultTiles;
     tileStates = defaultTileStates;
+    buttonState = Button::State::Unclicked;
     remainingBombs = 99;
+    play = true;
 }
 
-std::vector<std::vector<int>>& State::getTiles()
+bool State::canPlay()
+{
+    return play;
+}
+
+void State::setPlay(bool _play)
+{
+    play = _play;
+}
+
+std::vector<std::vector<Tile::Type>>& State::getTiles()
 {
     return tiles;
 }
 
-std::vector<std::vector<int>>& State::getTileStates()
+std::vector<std::vector<Tile::State>>& State::getTileStates()
 {
     return tileStates;
 }
 
+Button::State& State::getButtonState()
+{
+    return buttonState;
+}
+
 // This may be unnecessary 
-void State::setTiles(std::vector<std::vector<int>>& newTiles)
+void State::setTiles(std::vector<std::vector<Tile::Type>>& newTiles)
 {
     tiles = newTiles;
 }
@@ -33,6 +49,7 @@ void State::resetState()
     tiles = defaultTiles;
     tileStates = defaultTileStates;
     remainingBombs = 99;
+    play = true;
 }
 
 State* State::getInstance(){

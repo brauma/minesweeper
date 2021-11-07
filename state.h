@@ -3,7 +3,9 @@
 
 #include <vector>
 
-enum TileType {
+namespace Tile{
+
+enum Type {
     Empty_Tile,
     One_Tile,
     Two_Tile,
@@ -13,32 +15,48 @@ enum TileType {
     Six_Tile,
     Seven_Tile,
     Eight_Tile,
-    Bomb_Tile,
+    Unexploded_Bomb_Tile,
     Unclicked_Tile,
-    Flag_Tile
+    Flag_Tile,
+    Exploded_Bomb_Tile,
+    Missed_Bomb_Tile
 };
 
-enum TileState {
+enum State {
     Unclicked,
     Clicked,
-    Flagged
+    Flagged,
+    Pressed,
+    Exploded,
+    Missed
 };
+
+} // namespace Tile
+
+namespace Button {
+
+enum State {
+    Unclicked,
+    Clicked,
+    Progressed,
+    Won,
+    Lost
+};
+
+} // namespace Button
 
 class State
 {
 private:
     static State* instance;
 
-    /**
-     * 1-8 adjacent bomb count
-     * 9 bomb 
-     * 10 flag
-     * 0 no bombs adjacent
-     */
-    std::vector<std::vector<int>> defaultTiles;
-    std::vector<std::vector<int>> defaultTileStates;
-    std::vector<std::vector<int>> tiles;
-    std::vector<std::vector<int>> tileStates;
+    std::vector<std::vector<Tile::Type>> defaultTiles;
+    std::vector<std::vector<Tile::State>> defaultTileStates;
+    std::vector<std::vector<Tile::Type>> tiles;
+    std::vector<std::vector<Tile::State>> tileStates;
+    Button::State buttonState;
+
+    bool play;
 public:
     int remainingBombs;
     int rows = 16, columns = 30;
@@ -47,9 +65,14 @@ public:
 
     static State* getInstance();
     
-    std::vector<std::vector<int>>& getTiles();
-    std::vector<std::vector<int>>& getTileStates();
-    void setTiles(std::vector<std::vector<int>>& newTiles);
+    bool canPlay();
+    void setPlay(bool _play);
+
+    std::vector<std::vector<Tile::Type>>& getTiles();
+    std::vector<std::vector<Tile::State>>& getTileStates();
+    Button::State& getButtonState();
+    void setTiles(std::vector<std::vector<Tile::Type>>& newTiles);
+
     void resetState();
     void destroy();
 };

@@ -87,25 +87,33 @@ void View::clearScreen()
 void View::drawScreen()
 {
     drawBoard();
+    drawUI();
 
-    std::vector<std::vector<int>> tiles = state->getTiles();
+    std::vector<std::vector<Tile::Type>> tiles = state->getTiles();
     for (size_t i = 0; i < tiles.size(); i++)
     {
         for (size_t j = 0; j < tiles[0].size(); j++)
         {
-            if (state->getTileStates()[i][j] == TileState::Unclicked)
+            switch(state->getTileStates()[i][j])
             {
-                drawTile(textures[TileType::Unclicked_Tile], positions[i][j]);
-                continue;
-            } 
-
-            if (state->getTileStates()[i][j] == TileState::Flagged)
-            {
-                drawTile(textures[TileType::Flag_Tile], positions[i][j]);
-                continue;
-            }
-            else {
-                drawTile(textures[tiles[i][j]], positions[i][j]);
+                case Tile::State::Pressed:
+                    drawTile(textures[Tile::Type::Empty_Tile], positions[i][j]);
+                    break; 
+                case Tile::State::Unclicked:
+                    drawTile(textures[Tile::Type::Unclicked_Tile], positions[i][j]);
+                    break;
+                case Tile::State::Flagged:
+                    drawTile(textures[Tile::Type::Flag_Tile], positions[i][j]);
+                    break;
+                case Tile::State::Exploded:
+                    drawTile(textures[Tile::Type::Exploded_Bomb_Tile], positions[i][j]);
+                    break;
+                case Tile::State::Missed:
+                    drawTile(textures[Tile::Type::Missed_Bomb_Tile], positions[i][j]);
+                    break;
+                default:
+                    drawTile(textures[tiles[i][j]], positions[i][j]);
+                    break;
             }
         }
     }
@@ -124,7 +132,7 @@ void View::drawBoard()
 
 void View::drawUI()
 {
-
+    SDL_RenderCopy(renderer, buttonAtlas, &buttonTextures[state->getButtonState()], &buttonPosition);
 }
 
 void View::drawTile(SDL_Rect clip, SDL_Rect pos) 
@@ -134,19 +142,33 @@ void View::drawTile(SDL_Rect clip, SDL_Rect pos)
 
 void View::getTexturePositions()
 {
-    textures[TileType::Empty_Tile] = {(int) TILE_TEX_SIZE, (int) 48, TILE_TEX_SIZE, TILE_TEX_SIZE};
-    textures[TileType::Bomb_Tile] = {(int) 84, (int) 48, TILE_TEX_SIZE, TILE_TEX_SIZE};
-    textures[TileType::Unclicked_Tile] = {(int) 0, (int) 48, TILE_TEX_SIZE, TILE_TEX_SIZE};
-    textures[TileType::Flag_Tile] = {(int) 2*TILE_TEX_SIZE, (int) 48, TILE_TEX_SIZE, TILE_TEX_SIZE};
+    // Tile textures
+    textures[Tile::Type::Empty_Tile] = {(int) TILE_TEX_SIZE, (int) 48, TILE_TEX_SIZE, TILE_TEX_SIZE};
+    textures[Tile::Type::Unexploded_Bomb_Tile] = {(int) 84, (int) 48, TILE_TEX_SIZE, TILE_TEX_SIZE};
+    textures[Tile::Type::Exploded_Bomb_Tile] = {(int) 84 + TILE_TEX_SIZE, (int) 48, TILE_TEX_SIZE, TILE_TEX_SIZE};
+    textures[Tile::Type::Missed_Bomb_Tile] = {(int) 84 + 2 * TILE_TEX_SIZE, (int) 48, TILE_TEX_SIZE, TILE_TEX_SIZE};
+    textures[Tile::Type::Unclicked_Tile] = {(int) 0, (int) 48, TILE_TEX_SIZE, TILE_TEX_SIZE};
+    textures[Tile::Type::Flag_Tile] = {(int) 2*TILE_TEX_SIZE, (int) 48, TILE_TEX_SIZE, TILE_TEX_SIZE};
 
     for (int i = 1; i < 9; i++)
     {
         textures[i] = {(int) (i-1) * TILE_TEX_SIZE, (int) 65, TILE_TEX_SIZE, TILE_TEX_SIZE};
     }
+
+    // Button textures
+    for (int i = 0; i < 5; i++)
+    {
+        buttonTextures[i] = {(int)i * BUTTON_TEX_SIZE, (int) 24, BUTTON_TEX_SIZE, BUTTON_TEX_SIZE};
+        std::cout << buttonTextures[i].x << " " << buttonTextures[i].y << std::endl;
+    }
+    std::cout << "Flag texture address: " << &textures[Tile::Type::Flag_Tile] << ", button texture address: " << &buttonTextures[Button::State::Unclicked] << std::endl;
 }
 
 void View::getDrawPositions()
 {
+
+    buttonPosition = {(int) (WIDTH/2 - BUTTON_SIZE/2), (int) 20, BUTTON_SIZE, BUTTON_SIZE};
+
     // Where to start drawing the tiles from
     int startX = 15;
     int startY = 70;
@@ -158,7 +180,7 @@ void View::getDrawPositions()
 
     std::vector<SDL_Rect> row;
 
-    std::vector<std::vector<int>> tiles = state->getTiles();
+    std::vector<std::vector<Tile::Type>> tiles = state->getTiles();
     for (size_t i = 0; i < tiles.size(); i++)
     {
         row.clear();
@@ -188,6 +210,12 @@ std::tuple<int, int> View::getClickedTile(int x, int y)
         }
     }
     return std::tuple<int, int>(-1, -1);
+}
+
+bool View::isButtonClicked (int x, int y)
+{
+    return (x >= buttonPosition.x && x <= buttonPosition.x + BUTTON_SIZE &&
+            y >= buttonPosition.y && y <= buttonPosition.y + BUTTON_SIZE);
 }
 
 void View::gameOverScreen()

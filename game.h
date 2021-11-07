@@ -14,14 +14,16 @@ class Game
 private:
     State* state;
 
-public:
+    int pressed_i, pressed_j;
     bool running;
-
+public:
     Game();
 
     void init();
     void run();
     void restart();
+
+    void gameOver();
 
     void buildBoard();
     void placeBombs();
@@ -30,6 +32,7 @@ public:
     std::vector<std::tuple<int, int>> getAdjacentTiles(int i, int j);
 
     void clickEmptyTiles(int i, int j);
+    void clickSurroundingTiles(int i, int j);
 
-    void handleMouseInput(SDL_MouseButtonEvent mouseButtonEvent);
+    void handleMouseInput(SDL_Event event);
 };
