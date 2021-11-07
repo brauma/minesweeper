@@ -21,7 +21,7 @@ private:
     SDL_Texture* buttonAtlas;
     SDL_Texture* boardTexture;
 
-    SDL_Rect textures[11];
+    SDL_Rect textures[12];
     std::vector<std::vector<SDL_Rect>> positions;
 
     int init();

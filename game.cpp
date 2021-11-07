@@ -11,18 +11,6 @@ void Game::init()
     state = State::getInstance();
 
     buildBoard();
-
-    std::cout << "Bombs placed" << std::endl;
-
-    /* for (int i = 0; i < GRID_HEIGHT; i++)
-    {
-        for (int j = 0; j < GRID_WIDTH; j++)
-        {
-            std::cout << state->getTiles()[i][j] << " ";
-        }
-        std::cout << std::endl;
-    }  */
-
     running = true;
 }
 
@@ -65,8 +53,8 @@ void Game::run()
 
 void Game::buildBoard()
 {
-   placeBombs();
-   addNumbers();
+    placeBombs();
+    addNumbers();
 }
 
 void Game::placeBombs()
@@ -81,10 +69,10 @@ void Game::placeBombs()
         i = rand() % state->rows;
         j = rand() % state->columns;
         
-        if (tiles[i][j] == 9)
+        if (tiles[i][j] == TileType::Bomb_Tile)
             continue;
         
-        tiles[i][j] = 9;
+        tiles[i][j] = TileType::Bomb_Tile;
         bombsToPlace--;
     }
 
@@ -143,7 +131,7 @@ void Game::clickEmptyTiles(int i, int j)
 {
     std::vector<std::vector<int>> tiles = state->getTiles();
 
-    state->getTileStates()[i][j] = true;
+    state->getTileStates()[i][j] = TileState::Clicked;
     auto adjacentTiles = getAdjacentTiles(i, j);
     int current_i, current_j;
 
@@ -152,13 +140,13 @@ void Game::clickEmptyTiles(int i, int j)
         current_i = std::get<0>(adjacent);
         current_j = std::get<1>(adjacent);
 
-        if (state->getTileStates()[current_i][current_j])
+        if (state->getTileStates()[current_i][current_j] == TileState::Clicked)
             continue;
 
         if (tiles[current_i][current_j] > TileType::Empty_Tile &&
             tiles[current_i][current_j] < TileType::Bomb_Tile) 
         {
-            state->getTileStates()[current_i][current_j] = true;
+            state->getTileStates()[current_i][current_j] = TileState::Clicked;
         }
 
         if (tiles[current_i][current_j] == TileType::Empty_Tile)
@@ -177,28 +165,46 @@ void Game::handleMouseInput(SDL_MouseButtonEvent mouseButtonEvent)
     if (i == -1)
         return;
 
+    if (state->getTileStates()[i][j] == TileState::Clicked)
+        return;
+
     switch (mouseButtonEvent.button)
     {
         case SDL_BUTTON_LEFT:
-            if (!state->getTileStates()[i][j]){
-                state->getTileStates()[i][j] = true;
-                switch(state->getTiles()[i][j])
-                {
-                    case TileType::Bomb_Tile:
-                        // temporary
-                        // View::GetInstance()->gameOverScreen();
-                        //restart();
-                        break;
-                    case TileType::Empty_Tile:
-                        clickEmptyTiles(i, j);
-                        break;
-                    default:
-                        break;
-                }
-            }
+            if (state->getTileStates()[i][j] == TileState::Flagged) 
+                break;
+
+            state->getTileStates()[i][j] = TileState::Clicked;
+            
+            switch(state->getTiles()[i][j])
+            {
+                case TileType::Bomb_Tile:
+                    // temporary
+                    // View::GetInstance()->gameOverScreen();
+                    //restart();
+                    break;
+                case TileType::Empty_Tile:
+                    clickEmptyTiles(i, j);
+                    break;
+                default:
+                    break;
+            } 
             break;
         case SDL_BUTTON_RIGHT:
-            std::cerr << "Right mouse button!" << std::endl;
+            if (state->getTileStates()[i][j] == TileState::Unclicked)
+            {
+                state->getTileStates()[i][j] = TileState::Flagged;
+            }
+            else if (state->getTileStates()[i][j] == TileState::Flagged)
+            {
+                state->getTileStates()[i][j] = TileState::Unclicked;
+            }
+            break;
+        case SDL_BUTTON_MIDDLE:
+            if (state->getTileStates()[i][j] == TileState::Flagged)
+            {
+
+            }
             break;
         default:
             std::cerr << "Some mouse button!" << std::endl;

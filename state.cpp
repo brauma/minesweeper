@@ -4,8 +4,9 @@ State* State::instance = nullptr;
 
 State::State()
 {
-    defaultTiles = std::vector<std::vector<int>> (rows, std::vector<int>(columns, 0));
-    defaultTileStates = std::vector<std::vector<bool>> (rows, std::vector<bool>(columns, false));
+    // this needs fixing
+    defaultTiles = std::vector<std::vector<int>> (rows, std::vector<int>(columns, TileType::Empty_Tile));
+    defaultTileStates = std::vector<std::vector<int>> (rows, std::vector<int>(columns, TileState::Unclicked));
     tiles = defaultTiles;
     tileStates = defaultTileStates;
     remainingBombs = 99;
@@ -16,7 +17,7 @@ std::vector<std::vector<int>>& State::getTiles()
     return tiles;
 }
 
-std::vector<std::vector<bool>>& State::getTileStates()
+std::vector<std::vector<int>>& State::getTileStates()
 {
     return tileStates;
 }

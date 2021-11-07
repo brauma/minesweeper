@@ -93,11 +93,17 @@ void View::drawScreen()
     {
         for (size_t j = 0; j < tiles[0].size(); j++)
         {
-            if (!state->getTileStates()[i][j])
+            if (state->getTileStates()[i][j] == TileState::Unclicked)
             {
                 drawTile(textures[TileType::Unclicked_Tile], positions[i][j]);
                 continue;
             } 
+
+            if (state->getTileStates()[i][j] == TileState::Flagged)
+            {
+                drawTile(textures[TileType::Flag_Tile], positions[i][j]);
+                continue;
+            }
             else {
                 drawTile(textures[tiles[i][j]], positions[i][j]);
             }
@@ -128,14 +134,10 @@ void View::drawTile(SDL_Rect clip, SDL_Rect pos)
 
 void View::getTexturePositions()
 {
-    // Clicked empty tile
     textures[TileType::Empty_Tile] = {(int) TILE_TEX_SIZE, (int) 48, TILE_TEX_SIZE, TILE_TEX_SIZE};
-    
-    // Bomb
     textures[TileType::Bomb_Tile] = {(int) 84, (int) 48, TILE_TEX_SIZE, TILE_TEX_SIZE};
-
-    // Unclicked tile
     textures[TileType::Unclicked_Tile] = {(int) 0, (int) 48, TILE_TEX_SIZE, TILE_TEX_SIZE};
+    textures[TileType::Flag_Tile] = {(int) 2*TILE_TEX_SIZE, (int) 48, TILE_TEX_SIZE, TILE_TEX_SIZE};
 
     for (int i = 1; i < 9; i++)
     {
